@@ -127,54 +127,6 @@ def save_results(merged_data, output_filepath):
     """Save the merged data to a CSV file."""
     merged_data.to_csv(output_filepath, index=False)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def data_overview(data):
     logger.info("Checking categorical values...")
     
@@ -186,145 +138,179 @@ def data_overview(data):
         value_counts = data[col].value_counts()
         logger.info(f"Value counts for '{col}':\n{value_counts}")
 
-def outliers(data):
-    logger.info("ploting box plot for detecting outliers")
-    # Boxplot to visualize outliers in transaction amounts
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(y=data['Amount'])
-    plt.title('Boxplot of Transaction Amounts')
-    plt.ylabel('Transaction Amount')
-     # Function to format y-axis labels
-    def format_y_func(value, tick_number):
-        return f'{int(value):,}'  # Format as integer with commas
 
-    # Function to format x-axis labels
-    def format_x_func(value, tick_number):
-        return f'{int(value):,}'  # Format as integer with commas
+def calculate_class_distribution(df):
+    logger.info("Calculate the distribution of the 'class' column.")
+    class_distribution = df['class'].value_counts()
+    fraud_percentage = (class_distribution / class_distribution.sum()) * 100
+    return class_distribution, fraud_percentage
 
-    # Apply the custom formatter to the y-axis
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(format_y_func))
+def plot_class_distribution(df, class_distribution):
+    logger.info("Plotting class distribution...")
 
-    # Apply the custom formatter to the x-axis
-    plt.gca().xaxis.set_major_formatter(FuncFormatter(format_x_func))
+
+    # Bar plot
+    plt.figure(figsize=(8, 6))
+    sns.countplot(x='class', data=df, palette='Set2')
+    plt.title('Distribution of Fraudulent vs Non-Fraudulent Transactions')
+    plt.xlabel('Class (0 = Non-Fraud, 1 = Fraud)')
+    plt.ylabel('Number of Transactions')
+    plt.xticks(ticks=[0, 1], labels=['Non-Fraud', 'Fraud'], rotation=0)
     plt.show()
-    logger.info("ploting box plot for detecting outliers")
+
+    # Pie chart
+    plt.figure(figsize=(8, 6))
+    plt.pie(class_distribution, labels=['Non-Fraud', 'Fraud'], autopct='%1.1f%%', startangle=90, colors=['#66c2a5','#fc8d62'])
+    plt.title('Fraudulent vs Non-Fraudulent Transactions Distribution')
+    plt.axis('equal')  # Equal aspect ratio ensures that pie chart is circular
+    plt.show()
 
 
 
-def distribution_of_amount(data):
-    logger.info("plotting distribution of amount...")
+
+
+
+def calculate_source_distribution(df):
+  
+    logger.info("Calculating source distribution...")  # Log the start of the calculation
+    
+    # Count occurrences of each source
+    source_distribution = df['source'].value_counts()
+    
+    # Calculate percentages
+    source_percentage = (source_distribution / source_distribution.sum()) * 100  
+    
+    # Log the distribution details
+    logger.info("Source distribution calculated: %s", source_distribution.to_dict())
+    
+    return source_distribution, source_percentage  # Return the distribution and percentages
+
+def plot_source_distribution(source_distribution):
+  
+    logger.info("Plotting source distribution...")  # Log the start of the plotting process
+
+    # Create a bar plot
+    plt.figure(figsize=(10, 6))  # Create a new figure with a specified size
+    sns.barplot(y=source_distribution.index, x=source_distribution.values, palette='Set2')  # Create a count plot for 'source'
+    plt.title('Distribution of Transaction Sources')  # Set the title of the plot
+    plt.xlabel('Number of Transactions')  # Set the x-axis label
+    plt.ylabel('Source')  # Set the y-axis label
+    plt.show()  # Display the plot
+
+    # Create a pie chart for better visualization of proportions
+    plt.figure(figsize=(8, 6))  # Create a new figure for the pie chart
+    plt.pie(source_distribution, labels=source_distribution.index, autopct='%1.1f%%', startangle=90)  # Create a pie chart
+    plt.title('Transaction Sources Distribution')  # Set the title of the pie chart
+    plt.axis('equal')  # Set the aspect ratio of the pie chart to be equal
+    plt.show()  # Display the pie chart
+
+    logger.info("Source distribution plotted successfully.")  # Log the successful plotting
+
+
+def calculate_sex_distribution(df):
+    
+    logger.info("Calculating sex distribution...")  # Log the start of the calculation
+    
+    # Count occurrences of each sex
+    sex_distribution = df['sex'].value_counts()
+    
+    # Calculate percentages
+    sex_percentage = (sex_distribution / sex_distribution.sum()) * 100  
+    
+    # Log the distribution details
+    logger.info("Sex distribution calculated: %s", sex_distribution.to_dict())
+    
+    return sex_distribution, sex_percentage  # Return the distribution and percentages
+
+def plot_sex_distribution(sex_distribution):
    
-    # Create the plot
-    plt.figure(figsize=(10, 4))
-    sns.histplot(data['Amount'], bins=30, kde=True)
+    logger.info("Plotting sex distribution...")  # Log the start of the plotting process
 
-    # Set titles and labels
-    plt.title('Distribution of Transaction Amounts')
-    plt.xlabel('Transaction Amount')
-    plt.ylabel('Frequency')
+    # Create a bar plot
+    plt.figure(figsize=(10, 6))  # Create a new figure with a specified size
+    sns.barplot(y=sex_distribution.index, x=sex_distribution.values, palette='Set2')  # Create a count plot for 'sex'
+    plt.title('Distribution of Transaction Genders')  # Set the title of the plot
+    plt.xlabel('Number of Transactions')  # Set the x-axis label
+    plt.ylabel('Gender')  # Set the y-axis label
+    plt.show()  # Display the plot
 
-    # Function to format y-axis labels
-    def format_y_func(value, tick_number):
-        return f'{int(value):,}'  # Format as integer with commas
+    # Create a pie chart for better visualization of proportions
+    plt.figure(figsize=(8, 6))  # Create a new figure for the pie chart
+    plt.pie(sex_distribution, labels=sex_distribution.index, autopct='%1.1f%%', startangle=90)  # Create a pie chart
+    plt.title('Transaction Genders Distribution')  # Set the title of the pie chart
+    plt.axis('equal')  # Set the aspect ratio of the pie chart to be equal
+    plt.show()  # Display the pie chart
 
-    # Function to format x-axis labels
-    def format_x_func(value, tick_number):
-        return f'{int(value):,}'  # Format as integer with commas
-
-    # Apply the custom formatter to the y-axis
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(format_y_func))
-
-    # Apply the custom formatter to the x-axis
-    plt.gca().xaxis.set_major_formatter(FuncFormatter(format_x_func))
-
-    # Show the plot
-    plt.show()
-    logger.info("plot of distribution of amount")
+    logger.info("Sex distribution plotted successfully.")  # Log the successful plotting
 
 
 
-def amount_by_fraud_result(data):
-    # Boxplot for Amount by Fraud Result
-    logger.info("plotting amount by fraud result...")
+def calculate_age_statistics(df):
+   
+    logger.info("Calculating age statistics...")  # Log the start of the calculation
+    
+    # Calculate statistics
+    age_mean = df['age'].mean()  # Calculate mean age
+    age_median = df['age'].median()  # Calculate median age
+    age_std = df['age'].std()  # Calculate standard deviation of age
+    
+    # Log the statistics
+    logger.info("Age statistics calculated: Mean=%.2f, Median=%.2f, Std Dev=%.2f", age_mean, age_median, age_std)
+    
+    return pd.Series({'mean': age_mean, 'median': age_median, 'std_dev': age_std})  # Return the statistics
 
-    plt.figure(figsize=(10, 6))
-    sns.boxplot(x='FraudResult', y='Amount', data=data)
-    plt.title('Transaction Amount by Fraud Status')
-    plt.xlabel('Fraud Status (0: No, 1: Yes)')
-    plt.ylabel('Transaction Amount')
-    plt.show()
+def plot_age_distribution(df):
+   
+    logger.info("Plotting age distribution...")  # Log the start of the plotting process
 
-    # Count plot for Fraud Results
-    plt.figure(figsize=(10, 6))
-    sns.countplot(x='FraudResult', data=data)
-    plt.title('Count of Fraud Results')
-    plt.xlabel('Fraud Status (0: No, 1: Yes)')
-    plt.ylabel('Count')
-    plt.show()
-    logger.info("plotting amount by fraud result.")
+    # Create a histogram
+    plt.figure(figsize=(10, 6))  # Create a new figure with a specified size
+    sns.histplot(df['age'], bins=30, kde=True, color='blue', stat='density')  # Create a histogram with density estimation
+    plt.title('Age Distribution of Transactions')  # Set the title of the histogram
+    plt.xlabel('Age')  # Set the x-axis label
+    plt.ylabel('Density')  # Set the y-axis label
+    plt.axvline(df['age'].mean(), color='red', linestyle='dashed', linewidth=1)  # Add a line for mean age
+    plt.axvline(df['age'].median(), color='green', linestyle='dashed', linewidth=1)  # Add a line for median age
+    plt.legend({'Mean': df['age'].mean(), 'Median': df['age'].median()})  # Add legend
+    plt.show()  # Display the histogram
 
-def transaction_overtime(data):
-    logger.info("ploting transaction trend over time...")
-    data['TransactionStartTime'] = pd.to_datetime(data['TransactionStartTime'])
+    # Create a box plot
+    plt.figure(figsize=(10, 6))  # Create a new figure for the box plot
+    sns.boxplot(x=df['age'], color='cyan')  # Create a box plot for age
+    plt.title('Box Plot of Age Distribution')  # Set the title of the box plot
+    plt.xlabel('Age')  # Set the x-axis label
+    plt.show()  # Display the box plot
 
-    # Group by date and sum amounts
-    daily_transactions = data.groupby(data['TransactionStartTime'].dt.date)['Amount'].sum().reset_index()
-
-    # Plot daily transaction amounts
-    plt.figure(figsize=(12, 6))
-    plt.plot(daily_transactions['TransactionStartTime'], daily_transactions['Amount'])
-    plt.title('Daily Transaction Amounts Over Time')
-    plt.xlabel('Date')
-    plt.ylabel('Total Transaction Amount')
-    plt.xticks(rotation=45)
-    # Function to format y-axis labels
-    def format_y_func(value, tick_number):
-        return f'{int(value):,}'  # Format as integer with commas
-    # Apply the custom formatter to the y-axis
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(format_y_func))
-    plt.show()
-    logger.info("plot of transaction trend over time...")
+    logger.info("Age distribution plotted successfully.")  # Log the successful plotting
 
 
 
-def plot_of_product_catagory(data):
-    logger.info("plotting product cataogries by fraud...")
-        # Count plot for Product Categories by Fraud Result
-    plt.figure(figsize=(12, 6))
-    sns.countplot(x='ProductCategory', hue='FraudResult', data=data)
-    plt.title('Product Categories by Fraud Status')
-    plt.xlabel('ProductCategory')
-    plt.ylabel('Count')
-    plt.xticks(rotation=45)
-    plt.legend(title='Fraud Status', loc='upper right', labels=['No', 'Yes'])
-    plt.show()
 
-    # Count plot for Channels by Fraud Result
-    plt.figure(figsize=(12, 6))
-    sns.countplot(x='ChannelId', hue='FraudResult', data=data)
-    plt.title('Channels by Fraud Status')
-    plt.xlabel('ChannelId')
-    plt.ylabel('Count')
-    plt.xticks(rotation=45)
-    plt.legend(title='Fraud Status', loc='upper right', labels=['No', 'Yes'])
-    plt.show()
-    logger.info("plot of product cataogries by fraud...")
 
-def correlation_matrix(data):
-    logger.info("plotting the correlation matrix....")
-     # Encode categorical columns if necessary
-    data['ProductId'] = data['ProductId'].astype('category').cat.codes
-    data['ProductCategory'] = data['ProductCategory'].astype('category').cat.codes
-    data['ChannelId'] = data['ChannelId'].astype('category').cat.codes  # Encode ChannelId if it's categorical
+# Bivarieate analysis
 
-    correlation_data = data[['ProductId', 'ProductCategory', 'ChannelId', 'Amount', 'Value']]
+def analyze_fraud_by_source(df):
+    
+    logger.info("Analyzing fraudulent transactions by source...") 
 
-    # Calculate the correlation matrix
-    correlation_matrix = correlation_data.corr()
+    # Calculate the fraud rate for each source
+    fraud_counts = df.groupby('source')['class'].value_counts().unstack()  # Count of fraud and non-fraud transactions
+    #fraud_counts = fraud_counts.fillna(0)  # Fill NaN values with 0
+    fraud_counts['fraud_rate'] = fraud_counts[1] / (fraud_counts[0] + fraud_counts[1])  # Calculate fraud rate
+    fraud_counts = fraud_counts.reset_index()  # Reset index for easier plotting
 
-    # Create a heatmap
-    plt.figure(figsize=(12, 10))  # Increased size for better readability
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', square=True)
-    plt.title('Correlation Heatmap of Selected Features')
-    plt.show()
-    logger.info("plot of  the correlation matrix")
+    # Log the calculated fraud rates
+    logger.info("Fraud rates by source:\n%s", fraud_counts[['source', 'fraud_rate']])  # Log fraud rates
+
+    # Create a bar plot for fraud rates by source
+    plt.figure(figsize=(12, 6))  # Create a new figure with a specified size
+    sns.barplot(data=fraud_counts, x='source', y='fraud_rate', palette='viridis')  # Create a bar plot
+    plt.title('Fraud Rate by Source')  # Set the title of the plot
+    plt.xlabel('Source')  # Set the x-axis label
+    plt.ylabel('Fraud Rate')  # Set the y-axis label
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.axhline(0.5, color='red', linestyle='--', linewidth=1)  # Add a horizontal line at fraud rate of 0.5
+    plt.show()  # Display the plot
+
+    logger.info("Bivariate analysis by source completed successfully.")  # Log completion of analysis
+
