@@ -1,0 +1,8 @@
+2024-10-27 11:56:39,007 - ERROR - File not found: data.csv
+2024-10-27 11:59:04,393 - ERROR - File not found: Data\Fraud_Data.csv
+2024-10-27 11:59:18,595 - ERROR - File not found: ..Data/Fraud_Data.csv
+2024-10-27 11:59:43,472 - ERROR - File not found: ..Data/Fraud_Data.csv
+2024-10-27 12:01:25,198 - ERROR - File not found: ..Data/Fraud_Data.csv
+2024-10-27 12:01:41,846 - ERROR - File not found: ..Data/Fraud_Data.csv
+2024-10-27 12:01:53,853 - ERROR - File not found: ..Data\Fraud_Data.csv
+2024-10-29 04:48:51,913 - ERROR - File not found: Notebook\merged_ecommerce_data.csv
