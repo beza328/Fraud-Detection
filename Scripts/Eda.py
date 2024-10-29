@@ -5,9 +5,7 @@ import seaborn as sns
 import sys
 import os
 from matplotlib.ticker import FuncFormatter
-import ipaddress
-import socket
-import struct
+import geopandas as gpd
 
 
 
@@ -313,4 +311,115 @@ def analyze_fraud_by_source(df):
     plt.show()  # Display the plot
 
     logger.info("Bivariate analysis by source completed successfully.")  # Log completion of analysis
+
+def analyze_fraud_by_sex(df):
+ 
+    logger.info("Analyzing fraudulent transactions by sex...")  # Log the start of analysis
+
+    # Calculate the fraud rate for each sex
+    fraud_counts = df.groupby('sex')['class'].value_counts().unstack()  # Count of fraud and non-fraud transactions
+    #fraud_counts = fraud_counts.fillna(0)  # Fill NaN values with 0
+    fraud_counts['fraud_rate'] = fraud_counts[1] / (fraud_counts[0] + fraud_counts[1])  # Calculate fraud rate
+    fraud_counts = fraud_counts.reset_index()  # Reset index for easier plotting
+
+    # Log the calculated fraud rates
+    logger.info("Fraud rates by sex:\n%s", fraud_counts[['sex', 'fraud_rate']])  # Log fraud rates
+
+    # Create a bar plot for fraud rates by sex
+    plt.figure(figsize=(8, 6))  # Create a new figure with a specified size
+    sns.barplot(data=fraud_counts, x='sex', y='fraud_rate', palette='pastel')  # Create a bar plot
+    plt.title('Fraud Rate by Sex')  # Set the title of the plot
+    plt.xlabel('Sex')  # Set the x-axis label
+    plt.ylabel('Fraud Rate')  # Set the y-axis label
+    plt.axhline(0.5, color='red', linestyle='--', linewidth=1)  # Add a horizontal line at fraud rate of 0.5
+    plt.show()  # Display the plot
+
+    logger.info("Bivariate analysis by sex completed successfully.")  
+
+
+
+# Set up logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def create_age_bins(df):
+  
+    # Define the bins and labels for age ranges
+    bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]  # Adjust upper limit as necessary
+    labels = ['1-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100']
+    
+    # Create a new column 'age_range' based on bins
+    df['age_range'] = pd.cut(df['age'], bins=bins, labels=labels, right=False)  # Use right=False for inclusive lower bound
+    return df
+
+def analyze_fraud_by_age_range(df):
+   
+    logger.info("Analyzing fraudulent transactions by age range...")  # Log the start of analysis
+
+    # Create age bins
+    df = create_age_bins(df)
+
+    # Calculate the fraud rate for each age range
+    fraud_counts = df.groupby('age_range')['class'].value_counts().unstack()  # Count of fraud and non-fraud transactions
+    fraud_counts = fraud_counts.fillna(0)  # Fill NaN values with 0
+    fraud_counts['fraud_rate'] = fraud_counts[1] / (fraud_counts[0] + fraud_counts[1])  # Calculate fraud rate
+    fraud_counts = fraud_counts.reset_index()  # Reset index for easier plotting
+
+    # Log the calculated fraud rates
+    logger.info("Fraud rates by age range:\n%s", fraud_counts[['age_range', 'fraud_rate']])  # Log fraud rates
+
+    # Create a bar plot for fraud rates by age range
+    plt.figure(figsize=(12, 6))  # Create a new figure with a specified size
+    sns.barplot(data=fraud_counts, x='age_range', y='fraud_rate', palette='pastel')  # Create a bar plot
+    plt.title('Fraud Rate by Age Range')  # Set the title of the plot
+    plt.xlabel('Age Range')  # Set the x-axis label
+    plt.ylabel('Fraud Rate')  # Set the y-axis label
+    plt.axhline(0.5, color='red', linestyle='--', linewidth=1)  # Add a horizontal line at fraud rate of 0.5
+    plt.xticks(rotation=45)  # Rotate x-axis labels for better readability
+    plt.show()  # Display the plot
+
+    logger.info("Bivariate analysis by age range completed successfully.")  # Log completion of analysis
+
+
+
+# Set up logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def calculate_fraud_by_country(ecommerce_df):
+ 
+    logger.info("Calculating fraud by country...")
+    country_fraud_stats = (
+        ecommerce_df.groupby('country')['class']
+        .agg(total_transactions='count', total_fraud='sum')
+        .assign(fraud_rate=lambda x: x['total_fraud'] / x['total_transactions'])
+        .reset_index()
+    )
+    logger.info("Fraud calculation by country completed.")
+    return country_fraud_stats
+
+def top_fraudulent_countries(country_fraud_stats, top_n=10):
+   
+    logger.info(f"Extracting top {top_n} countries with highest fraud rates...")
+    top_countries = country_fraud_stats.sort_values(by='fraud_rate', ascending=False).head(top_n)
+    logger.info("Top fraudulent countries extraction completed.")
+    return top_countries
+
+def plot_fraud_map(country_fraud_stats, world_map_path='path_to_world_shapefile'):
+
+    logger.info("Plotting fraud distribution on world map...")
+    # Load the world shapefile data
+    world = gpd.read_file(world_map_path)
+    # Merge world map with fraud data
+    fraud_map = world.merge(country_fraud_stats, how='left', left_on='NAME_LONG', right_on='country')
+
+    # Plot the world map
+    fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+    fraud_map.plot(column='fraud_rate', cmap='Reds', linewidth=0.8, ax=ax, edgecolor='0.8', legend=True)
+    ax.set_title("Fraud Rate by Country", fontsize=16)
+    ax.set_axis_off()
+    plt.show()
+    logger.info("Fraud map plotted successfully.")
+
+
 
