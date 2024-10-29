@@ -423,3 +423,34 @@ def plot_fraud_map(country_fraud_stats, world_map_path='path_to_world_shapefile'
 
 
 
+def analyze_combined_fraud(df_ecommerce, df_credit_card):
+ 
+    logger.info("Starting combined fraud analysis...")
+
+    # fraud rate in eCommerce vs Credit Card transactions
+    fraud_ecommerce_rate = df_ecommerce['class'].mean()  # Calculate fraud rate for eCommerce
+    fraud_credit_card_rate = df_credit_card['class'].mean()  # Replace with actual column
+
+    logger.info(f"eCommerce Fraud Rate: {fraud_ecommerce_rate:.2f}")
+    logger.info(f"Credit Card Fraud Rate: {fraud_credit_card_rate:.2f}")
+
+    # Visualize comparison
+    fraud_rates = pd.DataFrame({
+        'Transaction Type': ['eCommerce', 'Credit Card'],
+        'Fraud Rate': [fraud_ecommerce_rate, fraud_credit_card_rate]
+    })
+
+    plt.figure(figsize=(8, 5))
+    sns.barplot(data=fraud_rates, x='Transaction Type', y='Fraud Rate', palette='pastel')
+    plt.title('Fraud Rates Comparison')
+    plt.ylabel('Fraud Rate')
+    plt.axhline(0.5, color='red', linestyle='--', linewidth=1)  # Optional: reference line
+    plt.show()
+
+    logger.info("Combined fraud analysis completed.")
+
+# Example usage:
+# ecommerce_df, credit_card_df = load_data("ecommerce_data.csv", "credit_card_data.csv")
+#
+
+
