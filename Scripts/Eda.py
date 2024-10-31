@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 import os
-from matplotlib.ticker import FuncFormatter
 import geopandas as gpd
 
 
@@ -449,8 +448,6 @@ def analyze_combined_fraud(df_ecommerce, df_credit_card):
 
     logger.info("Combined fraud analysis completed.")
 
-# Example usage:
-# ecommerce_df, credit_card_df = load_data("ecommerce_data.csv", "credit_card_data.csv")
-#
+
 
 
